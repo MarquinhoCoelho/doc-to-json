@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar PDF para API</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Enviar PDF e Converter para JSON</h1>
+        <form id="uploadForm">
+            <input type="file" id="fileInput" accept="application/pdf" required>
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="response"></div>
+    </div>
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Por favor, selecione um arquivo PDF.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const response = await fetch("http://localhost:3000/extract", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao processar o arquivo.");
+                }
+
+                const result = await response.json();
+
+                // Organiza e exibe a resposta em formato JSON no frontend
+                document.getElementById("response").innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById("response").innerText = "Erro ao enviar o arquivo: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
